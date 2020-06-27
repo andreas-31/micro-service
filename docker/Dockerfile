@@ -15,10 +15,9 @@ RUN pip3 install --upgrade pip &&\
     pip3 install --trusted-host pypi.python.org -r requirements.txt
 
 ## Step 4:
-# Expose port 80
-EXPOSE 8501
+# Expose port 5000 (Flask standard port)
+EXPOSE 5000
 
 ## Step 5:
 # Run app.py at container launch
-CMD ["sh", "setup.sh"]
-CMD ["streamlit", "run", "app.py"]
+CMD ["python3", "app.py"]

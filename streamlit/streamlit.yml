@@ -1,0 +1,44 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mystreamlit
+  namespace: default
+  labels:
+    app: mystreamlit
+spec:
+  ports:
+    - port: 8501
+  selector:
+    app: mystreamlit
+    tier: frontend
+  type: LoadBalancer
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mystreamlit
+  namespace: default
+  labels:
+    app: mystreamlit
+spec:
+  selector:
+    matchLabels:
+      app: mystreamlit
+      tier: frontend
+  strategy:
+    type: Recreate
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mystreamlit
+        tier: frontend
+    spec:
+      containers:
+        - name: mystreamlit
+          image: itsecat/mystreamlit
+          ports:
+            - containerPort: 8501
+              name: mystreamlit

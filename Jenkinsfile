@@ -23,22 +23,32 @@ pipeline {
                        sh 'echo ${USERNAME}'
                        sh 'echo ${PASSWORD}'
                        sh '''
-                            username=itsecat
                             appname=flask-app
-                            dockerpath="$username/$appname"
+                            dockerpath="${USERNAME}/$appname"
                             
                             # Step 3:  
                             # Authenticate & tag
                             echo "Docker ID and Image: $dockerpath"
-                            docker login --username "$username" --password "${PASSWORD}"
+                            docker login --username "${USERNAME}" --password "${PASSWORD}"
                             docker tag "$appname" "$dockerpath"
 
                             # Step 4:
                             # Push image to a docker repository
                             docker push "$dockerpath"
+                            
+                            # To push a new tag to this repository
+                            # docker push itsecat/flask-app:tagname
                         '''
                    }
                }
+         }
+          
+         stage('Deploy EKS infrastructure with ansible and CloudFormation') {
+              steps {
+                   sh '''
+                         ansible-playbook -i inventory main.yaml
+                   '''
+              }
          }
      }
 }

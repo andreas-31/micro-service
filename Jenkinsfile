@@ -22,6 +22,21 @@ pipeline {
                    withCredentials([usernamePassword(credentialsId: 'docker-hub', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                        sh 'echo ${USERNAME}'
                        sh 'echo ${PASSWORD}'
+                       sh '''
+                            username=itsecat
+                            appname=flask-app
+                            dockerpath="$username/$appname"
+                            
+                            # Step 3:  
+                            # Authenticate & tag
+                            echo "Docker ID and Image: $dockerpath"
+                            docker login --username "$username" --password "${PASSWORD}"
+                            docker tag "$appname" "$dockerpath"
+
+                            # Step 4:
+                            # Push image to a docker repository
+                            docker push "$dockerpath"
+                        '''
                    }
                }
          }

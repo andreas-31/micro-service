@@ -62,8 +62,8 @@ pipeline {
           stage('Configure kubectl') {
                steps {
                     sh 'echo "Configuring kubectl for accessing the EKS cluster"'
-                    sh 'aws eks --region us-west-2 update-kubeconfig --name eks-example --kubeconfig ~/.kube/eks-example'
                     sh '''
+                         aws eks --region us-west-2 update-kubeconfig --name eks-example --kubeconfig ~/.kube/eks-example
                          export KUBECONFIG=~/.kube/eks-example
                          kubectl get svc
                     '''
@@ -74,11 +74,12 @@ pipeline {
                steps {
                     sh 'echo "Deploying app to EKS"'
                     sh '''
+                         aws eks --region us-west-2 update-kubeconfig --name eks-example --kubeconfig ~/.kube/eks-example
                          export KUBECONFIG=~/.kube/eks-example
                          kubectl apply -f kubernetes/flask-app.yml
+                         echo "See next output for external IP of elastic load balancer:"
+                         kubectl get svc -o wide
                     '''
-                    sh 'echo "See next output for external IP of elastic load balancer:"'
-                    sh 'kubectl get svc -o wide'
                }
           }
      }

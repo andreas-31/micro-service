@@ -46,7 +46,8 @@ pipeline {
          stage('Deploy EKS infrastructure with ansible and CloudFormation') {
               steps {
                    sh '''
-                         ansible-playbook -i inventory main.yaml
+                         pwd
+                         #ansible-playbook -i inventory main.yaml
                    '''
               }
          }

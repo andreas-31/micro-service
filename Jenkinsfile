@@ -62,12 +62,42 @@ node {
                echo "Trying to push Docker build to Dockerhub"
      }
      
-     stage('Deploy CloudFormation scripts with ansible') {
-         sh 'echo "Hello World"'
-         sh '''
-             echo "Multiline shell steps works too"
-             pwd
-             ls -lah
-         '''
-    }
+     stage('Deploy blue branch') {
+          when {
+               branch 'blue'
+          }
+          sh 'echo "Deploying BLUE branch"'
+          sh 'echo "Hello World"'
+          sh '''
+              echo "Multiline shell steps works too"
+              pwd
+              ls -lah
+          '''
+     }
+     
+     stage('Deploy green branch') {
+          when {
+               branch 'green'
+          }
+          sh 'echo "Deploying GREEN branch"'
+          sh 'echo "Hello World"'
+          sh '''
+              echo "Multiline shell steps works too"
+              pwd
+              ls -lah
+          '''
+     }
+     
+     stage('Deploy blue branch') {
+          when {
+               branch 'master'
+          }
+          sh 'echo "Deploying MASTER branch"'
+          sh 'echo "Hello World"'
+          sh '''
+              echo "Multiline shell steps works too"
+              pwd
+              ls -lah
+          '''
+     }
 }

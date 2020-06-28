@@ -6,8 +6,9 @@ pipeline {
                  sh 'echo "Hello World"'
                  sh '''
                      echo "Multiline shell steps works too"
-                     ls -lah
+                     pwd
                      git clone https://github.com/andreas-31/micro-service.git
+                     ls -lah
                  '''
              }
          }

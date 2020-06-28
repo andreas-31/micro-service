@@ -1,4 +1,4 @@
-pipeline {
+/*pipeline {
      agent any
      stages {
          stage('Build') {
@@ -31,33 +31,36 @@ pipeline {
               }
          }
      }
-}
-
-/*node {
-     def app
-     
-     stage('Clone repository') {
-          // Cloning the repository to our workspace
-          checkout scm
-     }
-     
-     stage('Build image') {
-          // This builds the actual image
-          app = docker.build("itsecat/flask-app")
-     }
-     
-     stage('Test image') {
-          app.inside {
-               echo "Tests passed"
-          }
-     }
-     
-     stage('Push image') {
-          // You would need to first register with Dockerhub before you can push images to your account
-          docker.withRegistry('https://registry.hub.docker.com', 'docker-hub') {
-               app.push("${env.BUILD_NUMBER}")
-               app.push("latest")
-          }
-               echo "Trying to push Docker build to Dockerhub"
-     }
 }*/
+
+pipeline {
+     agent any
+     stages {
+          def app
+
+          stage('Clone repository') {
+               // Cloning the repository to our workspace
+               checkout scm
+          }
+
+          stage('Build image') {
+               // This builds the actual image
+               app = docker.build("itsecat/flask-app")
+          }
+
+          stage('Test image') {
+               app.inside {
+                    echo "Tests passed"
+               }
+          }
+
+          stage('Push image') {
+               // You would need to first register with Dockerhub before you can push images to your account
+               docker.withRegistry('https://registry.hub.docker.com', 'docker-hub') {
+                    app.push("${env.BUILD_NUMBER}")
+                    app.push("latest")
+               }
+                    echo "Trying to push Docker build to Dockerhub"
+          }
+     }
+}

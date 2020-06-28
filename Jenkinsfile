@@ -70,6 +70,8 @@ pipeline {
                steps {
                     sh 'echo "Deploying app to EKS"'
                     sh 'kubectl apply -f kubernetes/flask-app.yml'
+                    sh 'echo "See next output for external IP of elastic load balancer:"'
+                    sh 'kubectl get svc -o wide'
                }
           }
      }

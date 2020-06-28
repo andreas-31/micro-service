@@ -46,8 +46,11 @@ pipeline {
          stage('Deploy EKS infrastructure with ansible and CloudFormation') {
               steps {
                    sh '''
-                         pwd
-                         #ansible-playbook -i inventory main.yaml
+                         start=`date +"%Y-%m-%d %T"`
+                         echo "Starting ansible-playbook at $start"
+                         ansible-playbook -i inventory main.yml
+                         end=`date +"%Y-%m-%d %T"`
+                         echo "Finished ansible-playbook at $end"
                    '''
               }
          }

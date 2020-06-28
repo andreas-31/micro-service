@@ -43,16 +43,34 @@ pipeline {
                }
          }
           
-         stage('Deploy EKS infrastructure with ansible and CloudFormation') {
+         stage('Create EKS cluster') {
               steps {
                    sh '''
                          start=`date +"%Y-%m-%d %T"`
                          echo "Starting ansible-playbook at $start"
+                   '''
+                   sh '''
                          ansible-playbook -i inventory main.yml
+                   '''
+                   sh '''
                          end=`date +"%Y-%m-%d %T"`
                          echo "Finished ansible-playbook at $end"
                    '''
               }
          }
+          
+          stage('Configure kubectl') {
+               sh 'echo "Configuring kubectl for accessing the EKS cluster"'
+               sh 'aws eks --region us-west-2 update-kubeconfig --name eks-example --kubeconfig ~/.kube/eks-example'
+               sh 'export KUBECONFIG=~/.kube/eks-example'
+               sh 'kubectl get svc'
+          }
+         
+          stage('Deploy app to EKS') {
+               steps {
+                    sh 'echo "Deploying app to EKS"'
+                    sh 'kubectl apply -f kubernetes/flask-app.yml'
+               }
+          }
      }
 }

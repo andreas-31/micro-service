@@ -1,4 +1,4 @@
-/*pipeline {
+pipeline {
      agent any
      stages {
          stage('Build') {
@@ -7,15 +7,14 @@
                  sh '''
                      echo "Multiline shell steps works too"
                      pwd
-                     [ -e "micro-service" ] && rm -fr "micro-service"
-                     git clone https://github.com/andreas-31/micro-service.git
                      ls -lah
                  '''
              }
          }
          stage('Lint HTML') {
               steps {
-                  sh 'tidy -q -e *.html'
+                  sh 'echo "Linting HTML"'
+                  //sh 'tidy -q -e *.html'
               }
          }
          stage('Security Scan') {
@@ -32,9 +31,9 @@
               }
          }
      }
-}*/
+}
 
-node {
+/*node {
      def app
      
      stage('Clone repository') {
@@ -61,43 +60,4 @@ node {
           }
                echo "Trying to push Docker build to Dockerhub"
      }
-     
-     stage('Deploy blue branch') {
-          when {
-               branch 'blue'
-          }
-          sh 'echo "Deploying BLUE branch"'
-          sh 'echo "Hello World"'
-          sh '''
-              echo "Multiline shell steps works too"
-              pwd
-              ls -lah
-          '''
-     }
-     
-     stage('Deploy green branch') {
-          when {
-               branch 'green'
-          }
-          sh 'echo "Deploying GREEN branch"'
-          sh 'echo "Hello World"'
-          sh '''
-              echo "Multiline shell steps works too"
-              pwd
-              ls -lah
-          '''
-     }
-     
-     stage('Deploy blue branch') {
-          when {
-               branch 'master'
-          }
-          sh 'echo "Deploying MASTER branch"'
-          sh 'echo "Hello World"'
-          sh '''
-              echo "Multiline shell steps works too"
-              pwd
-              ls -lah
-          '''
-     }
-}
+}*/

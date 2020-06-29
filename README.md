@@ -27,3 +27,9 @@ CI/CD pipeline for micro services applications with blue/green deployment
 1. inventory: ansible file holding information about hosts and connections
 1. main.yml: YAML file describing the ansible playbook that is used for creating all AWS resources that are necessary for EKS Cluster, EKS Nodegroup, and networking. Execute `ansible-playbook -i inventory main.yml`
 1. requirements.txt: defines Python modules that are required for linting and running the Flask web application
+
+## Jenkins Pipeline Steps and Requirements
+### Setup
+An EC2 Ubuntu instance was used to install Jenkins and the CloudBees Credentials plugin. An IAM policy "JenkinsMinimumSecurityModel" was assigned to an IAM role for the Jenkins EC2 instance in order to allow access to other AWS services like CloudFormation, EKS, or load balancer.
+### Step: Lint Dockerfile
+[hadolint](https://github.com/hadolint/hadolint) was installed manually.

@@ -25,7 +25,7 @@ pipeline {
                              . ~/.devops/bin/activate
                              pip3 install --upgrade pip
                              pip3 install -r requirements.txt
-                             pylint3 --disable=R,C,W1203 "$file_to_check"
+                             pylint --disable=R,C,W1203 "$file_to_check"
                          fi
                     '''
                }

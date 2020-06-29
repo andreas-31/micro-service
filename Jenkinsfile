@@ -98,7 +98,7 @@ pipeline {
                    sh '''
                         blue_name="flaskapp-blue"
                         cp kubernetes/flask-app.yml kubernetes/flask-app-blue.yml
-                        sed -i 's/flaskapp/flaskapp-blue/g' flask-app-blue.yml
+                        sed -i 's/flaskapp/flaskapp-blue/g' kubernetes/flask-app-blue.yml
                         aws eks --region us-west-2 update-kubeconfig --name eks-example --kubeconfig "$HOME/.kube/eks-example"
                         export KUBECONFIG="$HOME/.kube/eks-example"
                         kubectl apply -f kubernetes/flask-app-blue.yml
@@ -116,7 +116,7 @@ pipeline {
                    sh '''
                         green_name="flaskapp-green"
                         cp kubernetes/flask-app.yml kubernetes/flask-app-green.yml
-                        sed -i 's/flaskapp/flaskapp-green/g' flask-app-green.yml
+                        sed -i 's/flaskapp/flaskapp-green/g' kubernetes/flask-app-green.yml
                         aws eks --region us-west-2 update-kubeconfig --name eks-example --kubeconfig "$HOME/.kube/eks-example"
                         export KUBECONFIG="$HOME/.kube/eks-example"
                         kubectl apply -f kubernetes/flask-app-green.yml

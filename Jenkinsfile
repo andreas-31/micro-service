@@ -119,6 +119,8 @@ pipeline {
                         sed -i 's/flaskapp/flaskapp-green/g' kubernetes/flask-app-green.yml
                         aws eks --region us-west-2 update-kubeconfig --name eks-example --kubeconfig "$HOME/.kube/eks-example"
                         export KUBECONFIG="$HOME/.kube/eks-example"
+                        kubectl delete service flaskapp-green
+                        kubectl delete deployments flaskapp-green
                         kubectl apply -f kubernetes/flask-app-green.yml
                         rm kubernetes/flask-app-green.yml
                    '''

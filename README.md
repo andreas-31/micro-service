@@ -20,3 +20,5 @@ CI/CD pipeline for micro services applications with blue/green deployment
 1. kubernetes: contains the file "flask-app.yml" that describes the Kubernetes deployment and Kubernetes service
 1. the_app: contains all the Python, HTML, and CSS files that are part of the Flask web application
 1. vars: contains main.yml for defining and setting variables for the ansible playbook
+1. ansible.cfg: ansible configuration file
+1. delete.yml: used for deleting all AWS resources that have been created for EKS Cluster, EKS Nodegroup, and networking. Execute `ansible-playbook -i inventory delete.yml`

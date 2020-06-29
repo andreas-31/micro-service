@@ -95,7 +95,7 @@ flaskapp-green   LoadBalancer   10.100.24.235    a825ab26062f74aad82f3f6baf27771
 kubernetes       ClusterIP      10.100.0.1       <none>                                                                    443/TCP          12h
 ```
 In my case the URLs are:
-1. [Blue Deployment](http://a825ab26062f74aad82f3f6baf277715-764107461.us-west-2.elb.amazonaws.com:5000/)
+1. [Blue Deployment](http://ae8ca2a93345b4777b2010e91e99330e-1439484598.us-west-2.elb.amazonaws.com:5000/)
 1. [Green Deployment](http://a825ab26062f74aad82f3f6baf277715-764107461.us-west-2.elb.amazonaws.com:5000/)
 
 In order to have one URL for the end-user to access, a Route53 domain could be registered and an A record added for pointing to the ELB.

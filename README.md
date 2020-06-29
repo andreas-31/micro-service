@@ -40,7 +40,7 @@ chmod +x hadolint
 sudo install hadolint /usr/local/bin/
 ```
 ### Step: Lint Python Code
-pylint will be automatically installed into a Python 3.6 venv (virtual enviroment) during execution of pipeline.
+pylint will be automatically installed into a Python 3.6 venv (virtual enviroment) during execution of pipeline. pylint is listed in the requirements.txt file.
 ### Step: Build Docker Image
 Docker was installed manually on the system. The user "jenkins" was added to group "docker" to allow building of docker images.
 ```
@@ -85,3 +85,17 @@ kubectl delete deployments flaskapp-blue
 kubectl apply -f kubernetes/flask-app-blue.yml
 ```
 Note: if not running Jenkins in an EC2 instance without proper permissions, the tool [aws-iam-authenticator](https://docs.aws.amazon.com/eks/latest/userguide/install-aws-iam-authenticator.html) would also have to be installed alongside kubectl.
+## Accessing the Web App
+The publicly accessible URLs that are exposed by the load balancers for blue and green deployment can be queried with kubectl:
+```
+$ kubectl get svc
+NAME             TYPE           CLUSTER-IP       EXTERNAL-IP                                                               PORT(S)          AGE
+flaskapp-blue    LoadBalancer   10.100.182.119   ae8ca2a93345b4777b2010e91e99330e-1439484598.us-west-2.elb.amazonaws.com   5000:31632/TCP   3h33m
+flaskapp-green   LoadBalancer   10.100.24.235    a825ab26062f74aad82f3f6baf277715-764107461.us-west-2.elb.amazonaws.com    5000:30432/TCP   3h46m
+kubernetes       ClusterIP      10.100.0.1       <none>                                                                    443/TCP          12h
+```
+In my case the URLs are:
+1. [Blue Deployment](http://a825ab26062f74aad82f3f6baf277715-764107461.us-west-2.elb.amazonaws.com:5000/)
+1. [Green Deployment](http://a825ab26062f74aad82f3f6baf277715-764107461.us-west-2.elb.amazonaws.com:5000/)
+
+In order to have one URL for the end-user to access, a Route53 domain could be registered and an A record added for pointing to the ELB.

@@ -96,11 +96,12 @@ pipeline {
               steps {
                    sh 'echo "Deploying blue app to EKS"'
                    sh '''
-                        blue_name="flaskapp-blue"
                         cp kubernetes/flask-app.yml kubernetes/flask-app-blue.yml
                         sed -i 's/flaskapp/flaskapp-blue/g' kubernetes/flask-app-blue.yml
                         aws eks --region us-west-2 update-kubeconfig --name eks-example --kubeconfig "$HOME/.kube/eks-example"
                         export KUBECONFIG="$HOME/.kube/eks-example"
+                        kubectl delete service flaskapp-blue
+                        kubectl delete deployments flaskapp-blue
                         kubectl apply -f kubernetes/flask-app-blue.yml
                         rm kubernetes/flask-app-blue.yml
                    '''
@@ -114,7 +115,6 @@ pipeline {
               steps {
                    sh 'echo "Deploying green app to EKS"'
                    sh '''
-                        green_name="flaskapp-green"
                         cp kubernetes/flask-app.yml kubernetes/flask-app-green.yml
                         sed -i 's/flaskapp/flaskapp-green/g' kubernetes/flask-app-green.yml
                         aws eks --region us-west-2 update-kubeconfig --name eks-example --kubeconfig "$HOME/.kube/eks-example"

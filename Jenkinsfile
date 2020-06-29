@@ -96,7 +96,7 @@ pipeline {
               steps {
                    sh 'echo "Deploying blue app to EKS"'
                    sh '''
-                        blue_name="flaskapp-blue"
+                        pwd
                         cp kubernetes/flask-app.yml kubernetes/flask-app-blue.yml
                         sed -i 's/flaskapp/flaskapp-blue/g' kubernetes/flask-app-blue.yml
                         aws eks --region us-west-2 update-kubeconfig --name eks-example --kubeconfig "$HOME/.kube/eks-example"
@@ -114,7 +114,7 @@ pipeline {
               steps {
                    sh 'echo "Deploying green app to EKS"'
                    sh '''
-                        green_name="flaskapp-green"
+                        pwd
                         cp kubernetes/flask-app.yml kubernetes/flask-app-green.yml
                         sed -i 's/flaskapp/flaskapp-green/g' kubernetes/flask-app-green.yml
                         aws eks --region us-west-2 update-kubeconfig --name eks-example --kubeconfig "$HOME/.kube/eks-example"

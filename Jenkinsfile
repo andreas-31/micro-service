@@ -1,25 +1,51 @@
 pipeline {
      agent any
      stages {
-         stage('Build docker image') {
-             steps {
-                 sh 'echo "Building docker image"'
-                 sh '''
-                    # Step 1:
-                    # Create dockerpath
-                    username=itsecat
-                    appname=flask-app
-                    dockerpath="$username/$appname"
-
-                    # Step 2: Build the docker image
-                    docker build --tag "$appname" .
-                 '''
-             }
-         }
-         
-         stage('Push image to Docker Hub') {
+          stage('Lint Dockerfile') {
+               sh 'echo "This is a linter for Dockerfiles"'
+               sh '''
+                    file_to_check="Dockerfile"
+                    if [ -f "$file_to_check" ]; then
+                        echo "$file_to_check exists."
+                        python3 -m venv ~/.devops
+                        source ~/.devops/bin/activate
+                        hadolint "$file_to_check"
+                    fi
+               '''
+          }
+          
+          stage('Lint Python code') {
+               sh 'echo "This is a linter for Python 3 source code"'
+               sh '''
+                    file_to_check="the_app/app.py"
+                    if [ -f "$file_to_check" ]; then
+                        echo "$file_to_check exists."
+                        python3 -m venv ~/.devops
+                        source ~/.devops/bin/activate
+                        pylint3 --disable=R,C,W1203 "$file_to_check"
+                    fi
+               '''
+          }
+          
+          stage('Build docker image') {
               steps {
-                   withCredentials([usernamePassword(credentialsId: 'docker-hub', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                  sh 'echo "Building docker image"'
+                  sh '''
+                     # Step 1:
+                     # Create dockerpath
+                     username=itsecat
+                     appname=flask-app
+                     dockerpath="$username/$appname"
+
+                     # Step 2: Build the docker image
+                     docker build --tag "$appname" .
+                  '''
+              }
+          }
+         
+          stage('Push image to Docker Hub') {
+               steps {
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                        sh 'echo ${USERNAME}'
                        sh 'echo ${PASSWORD}'
                        sh '''
@@ -41,22 +67,22 @@ pipeline {
                         '''
                    }
                }
-         }
+          }
           
-         stage('Create EKS cluster') {
-              steps {
-                   sh '''
-                         start=`date +"%Y-%m-%d %T"`
-                         echo "Starting ansible-playbook at $start"
-                   '''
-                   sh '''
-                         ansible-playbook -i inventory main.yml
-                   '''
-                   sh '''
-                         end=`date +"%Y-%m-%d %T"`
-                         echo "Finished ansible-playbook at $end"
-                   '''
-              }
+          stage('Create EKS cluster') {
+               steps {
+                    sh '''
+                          start=`date +"%Y-%m-%d %T"`
+                          echo "Starting ansible-playbook at $start"
+                    '''
+                    sh '''
+                          ansible-playbook -i inventory main.yml
+                    '''
+                    sh '''
+                          end=`date +"%Y-%m-%d %T"`
+                          echo "Finished ansible-playbook at $end"
+                    '''
+               }
          }
           
           stage('Configure kubectl') {

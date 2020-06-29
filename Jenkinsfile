@@ -9,7 +9,7 @@ pipeline {
                          if [ -f "$file_to_check" ]; then
                              echo "$file_to_check exists."
                              python3 -m venv ~/.devops
-                             source ~/.devops/bin/activate
+                             . ~/.devops/bin/activate
                              hadolint "$file_to_check"
                          fi
                     '''
@@ -24,7 +24,7 @@ pipeline {
                          if [ -f "$file_to_check" ]; then
                              echo "$file_to_check exists."
                              python3 -m venv ~/.devops
-                             source ~/.devops/bin/activate
+                             . ~/.devops/bin/activate
                              pylint3 --disable=R,C,W1203 "$file_to_check"
                          fi
                     '''

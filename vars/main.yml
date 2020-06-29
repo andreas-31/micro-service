@@ -18,8 +18,8 @@ eks_nodegroup_instance_type: t3.medium
 eks_nodegroup_cluster_size: 3
 
 # Domain settings for Route53 DNS.
-wordpress_route53_zone: 'itsec.at' # e.g. 'example.com'
-wordpress_route53_domain: 'flaskapp.itsec.at' # e.g. 'wordpress.example.com'
+wordpress_route53_zone: '' # e.g. 'example.com'
+wordpress_route53_domain: '' # e.g. 'wordpress.example.com'
 
 # Kubernetes settings.
 k8s_kubeconfig: ~/.kube/eks-example

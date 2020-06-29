@@ -2,29 +2,33 @@ pipeline {
      agent any
      stages {
           stage('Lint Dockerfile') {
-               sh 'echo "This is a linter for Dockerfiles"'
-               sh '''
-                    file_to_check="Dockerfile"
-                    if [ -f "$file_to_check" ]; then
-                        echo "$file_to_check exists."
-                        python3 -m venv ~/.devops
-                        source ~/.devops/bin/activate
-                        hadolint "$file_to_check"
-                    fi
-               '''
+               steps {
+                    sh 'echo "This is a linter for Dockerfiles"'
+                    sh '''
+                         file_to_check="Dockerfile"
+                         if [ -f "$file_to_check" ]; then
+                             echo "$file_to_check exists."
+                             python3 -m venv ~/.devops
+                             source ~/.devops/bin/activate
+                             hadolint "$file_to_check"
+                         fi
+                    '''
+               }
           }
           
           stage('Lint Python code') {
-               sh 'echo "This is a linter for Python 3 source code"'
-               sh '''
-                    file_to_check="the_app/app.py"
-                    if [ -f "$file_to_check" ]; then
-                        echo "$file_to_check exists."
-                        python3 -m venv ~/.devops
-                        source ~/.devops/bin/activate
-                        pylint3 --disable=R,C,W1203 "$file_to_check"
-                    fi
-               '''
+               steps {
+                    sh 'echo "This is a linter for Python 3 source code"'
+                    sh '''
+                         file_to_check="the_app/app.py"
+                         if [ -f "$file_to_check" ]; then
+                             echo "$file_to_check exists."
+                             python3 -m venv ~/.devops
+                             source ~/.devops/bin/activate
+                             pylint3 --disable=R,C,W1203 "$file_to_check"
+                         fi
+                    '''
+               }
           }
           
           stage('Build docker image') {

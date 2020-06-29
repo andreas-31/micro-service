@@ -89,28 +89,40 @@ pipeline {
                }
          }
           
-          stage('Configure kubectl') {
-               steps {
-                    sh 'echo "Configuring kubectl for accessing the EKS cluster"'
-                    sh '''
-                         aws eks --region us-west-2 update-kubeconfig --name eks-example --kubeconfig "$HOME/.kube/eks-example"
-                         export KUBECONFIG="$HOME/.kube/eks-example"
-                         kubectl get svc
-                    '''
-               }
-          }
-         
-          stage('Deploy app to EKS') {
-               steps {
-                    sh 'echo "Deploying app to EKS"'
-                    sh '''
-                         aws eks --region us-west-2 update-kubeconfig --name eks-example --kubeconfig "$HOME/.kube/eks-example"
-                         export KUBECONFIG="$HOME/.kube/eks-example"
-                         kubectl apply -f kubernetes/flask-app.yml
-                         echo "See next output for external IP of elastic load balancer:"
-                         kubectl get svc -o wide
-                    '''
-               }
-          }
+         stage('Deploy blue app to EKS') {
+              when {
+                   branch 'blue'
+              }
+              steps {
+                   sh 'echo "Deploying blue app to EKS"'
+                   sh '''
+                        blue_name="flaskapp-blue"
+                        cp kubernetes/flask-app.yml kubernetes/flask-app-blue.yml
+                        sed -i 's/flaskapp/flaskapp-blue/g' flask-app-blue.yml
+                        aws eks --region us-west-2 update-kubeconfig --name eks-example --kubeconfig "$HOME/.kube/eks-example"
+                        export KUBECONFIG="$HOME/.kube/eks-example"
+                        kubectl apply -f kubernetes/flask-app-blue.yml
+                        rm kubernetes/flask-app-blue.yml
+                   '''
+              }
+         }
+          
+         stage('Deploy green app to EKS') {
+              when {
+                   branch 'green'
+              }
+              steps {
+                   sh 'echo "Deploying green app to EKS"'
+                   sh '''
+                        green_name="flaskapp-green"
+                        cp kubernetes/flask-app.yml kubernetes/flask-app-green.yml
+                        sed -i 's/flaskapp/flaskapp-green/g' flask-app-green.yml
+                        aws eks --region us-west-2 update-kubeconfig --name eks-example --kubeconfig "$HOME/.kube/eks-example"
+                        export KUBECONFIG="$HOME/.kube/eks-example"
+                        kubectl apply -f kubernetes/flask-app-green.yml
+                        rm kubernetes/flask-app-green.yml
+                   '''
+              }
+         }
      }
 }

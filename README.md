@@ -30,6 +30,58 @@ CI/CD pipeline for micro services applications with blue/green deployment
 
 ## Jenkins Pipeline Steps and Requirements
 ### Setup
-An EC2 Ubuntu instance was used to install Jenkins and the CloudBees Credentials plugin. An IAM policy "JenkinsMinimumSecurityModel" was assigned to an IAM role for the Jenkins EC2 instance in order to allow access to other AWS services like CloudFormation, EKS, or load balancer.
+An EC2 Ubuntu 18.04.4 LTS instance was used to install Jenkins and the CloudBees Credentials plugin. An IAM policy "JenkinsMinimumSecurityModel" was assigned to an IAM role for the Jenkins EC2 instance in order to allow access to other AWS services like CloudFormation, EKS, or EC2/ELB.
 ### Step: Lint Dockerfile
-[hadolint](https://github.com/hadolint/hadolint) was installed manually.
+[hadolint](https://github.com/hadolint/hadolint) was installed manually on the system.
+```
+wget https://github.com/hadolint/hadolint/releases/download/v1.18.0/hadolint-Linux-x86_64
+mv hadolint-Linux-x86_64 hadolint
+chmod +x hadolint
+sudo install hadolint /usr/local/bin/
+```
+### Step: Lint Python Code
+pylint will be automatically installed into a Python 3.6 venv (virtual enviroment) during execution of pipeline.
+### Step: Build Docker Image
+Docker was installed manually on the system. The user "jenkins" was added to group "docker" to allow building of docker images.
+```
+$ sudo apt-get update
+$ sudo apt-get install \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg-agent \
+    software-properties-common
+$ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+$ sudo add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
+$ sudo apt-get update
+$ sudo apt-get install docker-ce docker-ce-cli containerd.io
+$ sudo usermod -aG docker $USER && newgrp docker
+$ docker run hello-world
+```
+### Push Image to Docker Hub
+The credentials for the Docker Hub account have been added to Jenkins credential store. Username and password are fetched from the store and are inserted into the docker login command via Jenkins environment variables provided by the withCredentials clause.
+### Create EKS cluster
+[boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html#installation) and [aws CLI v2](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-linux.html#cliv2-linux-install) have been installed manually on the system.
+`sudo apt install python-boto3`
+boto3 is using the AWS credentials that have to be set up manually by running `aws configure` as user 'jenkins' `sudo su - jenkins`. ansible-playbook uses boto3 to send CloudFormation YAML files to AWS CloudFormation for executing stacks for EKS Cluster, EKS Nodegroup, and VPC network infrastructure. The creations of resources can take up to 20 minutes.
+### Deploy blue or green app to EKS
+Tool [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) was installed manually on the system.
+```
+sudo apt-get update && sudo apt-get install -y apt-transport-https gnupg2 
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - 
+echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list 
+sudo apt-get update 
+sudo apt-get install -y kubectl 
+```
+kubectl is used in this step of the Jenkins pipeline for deleting (if any) and creating blue or green (depending on git branch) deployments and services on Kubernetes (EKS). aws eks command is used as part of the pipeline to configure kubectl to access the EKS control plane endpoint:
+```
+aws eks --region us-west-2 update-kubeconfig --name eks-example --kubeconfig "$HOME/.kube/eks-example"
+export KUBECONFIG="$HOME/.kube/eks-example"
+kubectl delete service flaskapp-blue
+kubectl delete deployments flaskapp-blue
+kubectl apply -f kubernetes/flask-app-blue.yml
+```
+Note: if not running Jenkins in an EC2 instance without proper permissions, the tool [aws-iam-authenticator](https://docs.aws.amazon.com/eks/latest/userguide/install-aws-iam-authenticator.html) would also have to be installed alongside kubectl.

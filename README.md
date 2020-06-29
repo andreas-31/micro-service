@@ -3,14 +3,14 @@ CI/CD pipeline for micro services applications with blue/green deployment
 
 ## Description of Chosen Approach
 1. Github Repository: holds all the source code of the web application, the Dockerfile, the Jenkinsfile, the ansible playbook, and the CloudFormation stack files
-1. Jenkins Multibranch Pipeline: Jenkins is set up to process the branches "master", "blue", and "green" in the GitHub repository
+1. Jenkins Multibranch Pipeline: Jenkins is set up to process the branches "master", "blue", and "green" in the GitHub repository. Deployments to the Kubernetes/EKS cluster are only performed for branches "blue" and "green".
 1. Web Application: is based on the Python framework "Flask". The website is served by Python on port TCP/5000.
 1. Linting of Code: hadolint is used to lint the Dockerfile. pylint is used to lint the Python code.
-1. Kubernetes Cluster: ansible is used to spin up an Amazon EKS cluster by executing CloudFormation stacks for creation of VPC, EKS Cluster, and EKS Nodegroup.
-1. Docker Image: the web app is dockerized and pushed to Docker Hub [itsecat/flask-app](https://hub.docker.com/repository/docker/itsecat/flask-app)
+1. Kubernetes Cluster: ansible is used to spin up an Amazon EKS cluster with 3 worker nodes (EC2 instances) by executing CloudFormation stacks for creation of VPC, EKS Cluster, and EKS Nodegroup (Kubernetes worker nodes). Each of the 3 worker nodes is in a different availability zone (AZ), e.g. us-west-2a, us-west-2b, and us-west-2c. The worker nodes are part of an Autoscaling Group (ASG) that can scale up to 5 worker nodes.
+1. Docker Image: the web app is dockerized. The Docker image is pushed to Docker Hub [itsecat/flask-app](https://hub.docker.com/repository/docker/itsecat/flask-app)
 1. Application Deployment: kubectl command is used as part of the Jenkins pipeline to create
-   1. Blue load balancer (ELB), blue deployment, blue service
-   1. Green load balancer (ELB), green deployment, green service
+   1. Blue deployment comprises blue load balancer (ELB), blue Kubernetes deployment, and blue Kubernetes service
+   1. Green deployment comproses green load balancer (ELB), green Kubernetes deployment, and green Kubernetes service
    
 ## Files and Directories Listing
 1. cloudformation: YAML files describing the stacks for spinning up the EKS cluster. These files are read by ansible and are sent towards CloudFormation.
@@ -94,8 +94,21 @@ flaskapp-blue    LoadBalancer   10.100.182.119   ae8ca2a93345b4777b2010e91e99330
 flaskapp-green   LoadBalancer   10.100.24.235    a825ab26062f74aad82f3f6baf277715-764107461.us-west-2.elb.amazonaws.com    5000:30432/TCP   3h46m
 kubernetes       ClusterIP      10.100.0.1       <none>                                                                    443/TCP          12h
 ```
-In my case the URLs are:
-1. [Blue Deployment](http://ae8ca2a93345b4777b2010e91e99330e-1439484598.us-west-2.elb.amazonaws.com:5000/)
-1. [Green Deployment](http://a825ab26062f74aad82f3f6baf277715-764107461.us-west-2.elb.amazonaws.com:5000/)
+In my case the URLs are, after having run the pipeline for blue and green branches:
+1. [Blue Deployment](http://ad747cc15d67d495d9e3f6c173ce43ac-955714390.us-west-2.elb.amazonaws.com:5000/)
+1. [Green Deployment](http://a3d051ae8b92044b79f5cc634039b636-870249067.us-west-2.elb.amazonaws.com:5000/)
 
 In order to have one URL for the end-user to access, a Route53 domain could be registered and an A record added for pointing to the ELB.
+
+## Clean up
+Blue and green deployments can be removed with these commands:
+```
+kubectl delete service flaskapp-blue
+kubectl delete deployments flaskapp-blue
+kubectl delete service flaskapp-green
+kubectl delete deployments flaskapp-green
+```
+The EKS cluster infrastructure can be terminated by running this command:
+```
+ansible-playbook -i inventory delete.yml
+```

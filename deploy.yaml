@@ -6,28 +6,11 @@
     - vars/main.yml
 
   tasks:
-    - name: Deploy WordPress secrets.
-      k8s:
-        definition: '{{ item }}'
-        kubeconfig: '{{ k8s_kubeconfig }}'
-        state: present
-      loop: "{{ lookup('template', 'wordpress/mysql-pass.yml') | from_yaml_all | list }}"
-      no_log: k8s_no_log
-
-    - name: Deploy MySQL and WordPress.
-      k8s:
-        definition: '{{ item }}'
-        kubeconfig: '{{ k8s_kubeconfig }}'
-        state: present
-      loop:
-        - "{{ lookup('template', 'wordpress/mysql.yml') | from_yaml_all | list }}"
-        - "{{ lookup('template', 'wordpress/wordpress.yml') | from_yaml_all | list }}"
-
     - name: Get load balancer DNS name.
       k8s_info:
         kubeconfig: '{{ k8s_kubeconfig }}'
         kind: Service
-        name: wordpress
+        name: flaskapp-blue
         namespace: default
       register: wordpress_svc
 
